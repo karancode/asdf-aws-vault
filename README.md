@@ -6,11 +6,12 @@
 
 ```
 asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git
+asdf install aws-vault <version>
 ```
 
 ## Use
 
-Check out the [asdf documentation](https://asdf-vm.com/#/core-manage-versions?id=install-version) for instructions on how to install and manage versions of aws-vault.
+Check out the [asdf documentation](https://asdf-vm.com/guide/getting-started.html#_5-install-a-version) for instructions on how to install and manage versions of aws-vault.
 
 ## Crediits
 
