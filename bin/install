@@ -52,7 +52,8 @@ install_aws_vault() {
         if [[ "$download_url" = *"dmg" ]]; then
             hdiutil attach "$bin_path"
             cp -R /Volumes/aws-vault .
-            echo "$bin_path"
+            mv aws-vault/aws-vault "$bin_path"
+            rm -rf aws-vault
             hdiutil detach /Volumes/aws-vault
         fi
         chmod +x $bin_path
