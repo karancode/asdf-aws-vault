@@ -30,7 +30,11 @@ get_cpu() {
 get_download_url() {
     local version="$1"
     local platform="$(get_arch)"
-    echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
+    if "platform" = "darwin"; then
+        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
+    else
+        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
+    fi
 }
 
 install_aws_vault() {
@@ -45,6 +49,11 @@ install_aws_vault() {
     local bin_path="${bin_install_path}/aws-vault"
     echo "Downloading aws-vault from ${download_url}"
     if curl -sfL "$download_url" -o "$bin_path"; then
+        if "$download_url" = *"darwin"*; then
+            hdiutil attach "$bin_path"
+            cp /Volumes/aws-vault/aws-vault "$bin_path"
+            hdiutil detach /Volumes/aws-vault
+        fi
         chmod +x $bin_path
     else
         exit 1
