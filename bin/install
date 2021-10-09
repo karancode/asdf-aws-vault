@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+set -ex
+set -o pipefail
+
+ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE:-version  }
+[ -n "$ASDF_INSTALL_VERSION" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
+[ -n "$ASDF_INSTALL_PATH" ] || (>&2 echo 'Missing ASDF_INSTALL_PATH' && exit 1)
+
+get_arch() {
+    uname | tr '[:upper:]' '[:lower:]'
+}
+
+get_cpu() {
+    local machine_hardware_name
+    local cpu_type
+    machine_hardware_name="$(uname -m)"
+
+    case "$machine_hardware_name" in
+        'x86_64') cpu_type="amd64";;
+        'powerpc64le' | 'ppc64le') cpu_type="ppc64le";;
+        'aarch64') cpu_type="arm64";;
+        'armv7l') cpu_type="arm";;
+        *) cpu_type="$machine_hardware_name";;
+    esac
+
+    echo "$cpu_type"
+}
+
+get_download_url() {
+    local version="$1"
+    local platform="$(get_arch)"
+    if [ "$platform" = "darwin" ]; then
+        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
+    else
+        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
+    fi
+}
+
+install_aws_vault() {
+    local install_type=$1
+    local version=$2
+    local install_path=$3
+    local bin_install_path="$install_path/bin"
+    local download_url="$(get_download_url $version)"
+
+    mkdir -p "${bin_install_path}"
+
+    local bin_path="${bin_install_path}/aws-vault"
+    echo "Downloading aws-vault from ${download_url}"
+    if curl -sfL "$download_url" -o "$bin_path"; then
+        if [[ "$download_url" = *"dmg" ]]; then
+            # mount
+            hdiutil attach "$bin_path"
+
+            # replace dmg with binary
+            rm -rf  "$bin_path"
+            cp /Volumes/aws-vault/aws-vault "$bin_path"
+
+            # unmount
+            hdiutil detach /Volumes/aws-vault
+        fi
+        chmod +x $bin_path
+    else
+        exit 1
+    fi
+}
+
+install_aws_vault $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
