@@ -50,8 +50,14 @@ install_aws_vault() {
     echo "Downloading aws-vault from ${download_url}"
     if curl -sfL "$download_url" -o "$bin_path"; then
         if [[ "$download_url" = *"dmg" ]]; then
+            # mount
             hdiutil attach "$bin_path"
+
+            # replace dmg with binary
+            rm -rf  "$bin_path"
             cp /Volumes/aws-vault/aws-vault "$bin_path"
+
+            # unmount
             hdiutil detach /Volumes/aws-vault
         fi
         chmod +x $bin_path
