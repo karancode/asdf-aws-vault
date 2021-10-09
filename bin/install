@@ -30,7 +30,7 @@ get_cpu() {
 get_download_url() {
     local version="$1"
     local platform="$(get_arch)"
-    echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)
+    echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
 }
 
 install_aws_vault() {
