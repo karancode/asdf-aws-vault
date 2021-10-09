@@ -49,7 +49,7 @@ install_aws_vault() {
     local bin_path="${bin_install_path}/aws-vault"
     echo "Downloading aws-vault from ${download_url}"
     if curl -sfL "$download_url" -o "$bin_path"; then
-        if [ "$download_url" = *"darwin"* ]; then
+        if [[ "$download_url" = *"dmg" ]]; then
             hdiutil attach "$bin_path"
             cp /Volumes/aws-vault/aws-vault "$bin_path"
             hdiutil detach /Volumes/aws-vault
