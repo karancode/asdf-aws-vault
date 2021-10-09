@@ -44,8 +44,6 @@ install_aws_vault() {
 
     local bin_path="${bin_install_path}/aws-vault"
     echo "Downloading aws-vault from ${download_url}"
-    if curl -sf "$download_url" -o "$bin_path"; then
-        mv "$bin_path"
         chmod +x $bin_path
     else
         exit 1
