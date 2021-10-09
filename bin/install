@@ -40,7 +40,7 @@ install_aws_vault() {
     local bin_install_path="install_path/bin"
     local download_url="$(get_download_url $version)"
 
-    mkdir -p "${bin_install_path}
+    mkdir -p "${bin_install_path}"
 
     local bin_path="${bin_install_path}/aws-vault"
     echo "Downloading aws-vault from ${download_url}"
