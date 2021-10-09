@@ -1,0 +1,25 @@
+name: Main workflow
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  schedule:
+    - cron: "0 0 * * 5"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: asdf plugin test
+        uses: asdf-vm/actions/plugin-test@v1.1.0
+        with:
+          command: aws-vault --version
