@@ -14,7 +14,7 @@ get_arch() {
 get_cpu() {
     local machine_hardware_name
     local cpu_type
-    machine_hardware_name="$(uname -m)"
+    machine_hardware_name="$(arch)"
 
     case "$machine_hardware_name" in
         'x86_64') cpu_type="amd64";;
