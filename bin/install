@@ -31,9 +31,9 @@ get_download_url() {
     local version="$1"
     local platform="$(get_arch)"
     if [ "$platform" = "darwin" ]; then
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
+        echo "https://github.com/ByteNess/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
     else
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
+        echo "https://github.com/ByteNess/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
     fi
 }
 
