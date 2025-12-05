@@ -1,6 +1,6 @@
 # asdf-aws-vault
 [![Main workflow](https://github.com/karancode/asdf-aws-vault/actions/workflows/test.yaml/badge.svg)](https://github.com/karancode/asdf-aws-vault/actions/workflows/test.yaml)  
-[aws-vault](https://github.com/99designs/aws-vault) plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+[aws-vault](https://github.com/ByteNess/aws-vault) plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Install
 

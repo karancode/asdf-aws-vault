@@ -20,7 +20,6 @@ get_cpu() {
         'x86_64') cpu_type="amd64";;
         'powerpc64le' | 'ppc64le') cpu_type="ppc64le";;
         'aarch64') cpu_type="arm64";;
-        'armv7l') cpu_type="arm";;
         *) cpu_type="$machine_hardware_name";;
     esac
 
@@ -30,11 +29,7 @@ get_cpu() {
 get_download_url() {
     local version="$1"
     local platform="$(get_arch)"
-    if [ "$platform" = "darwin" ]; then
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
-    else
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
-    fi
+    echo "https://github.com/ByteNess/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
 }
 
 install_aws_vault() {
