@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+current_script_path="${BASH_SOURCE[0]}"
+plugin_dir="$(dirname "$(dirname "$current_script_path")")"
+
+# shellcheck source=../lib/utils.bash
+source "${plugin_dir}/lib/utils.bash"
+
+[ -n "${ASDF_INSTALL_VERSION:-}" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
+[ -n "${ASDF_DOWNLOAD_PATH:-}" ] || (>&2 echo 'Missing ASDF_DOWNLOAD_PATH' && exit 1)
+
+mkdir -p "$ASDF_DOWNLOAD_PATH"
+download_binary "$ASDF_INSTALL_VERSION" "${ASDF_DOWNLOAD_PATH}/${TOOL_NAME}"

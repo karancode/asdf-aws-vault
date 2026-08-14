@@ -2,16 +2,36 @@
 
 set -euo pipefail
 
-function sort_versions() {
+current_script_path="${BASH_SOURCE[0]}"
+plugin_dir="$(dirname "$(dirname "$current_script_path")")"
+
+# shellcheck source=../lib/utils.bash
+source "${plugin_dir}/lib/utils.bash"
+
+sort_versions() {
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' | \
     LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
 list_all_versions() {
-  git ls-remote --tags --refs https://github.com/99designs/aws-vault.git |
+  git ls-remote --tags --refs "${GH_REPO}.git" |
     grep -o 'refs/tags/.*' |
     cut -d/ -f3- |
     sed 's/^v//'
 }
 
-list_all_versions | sort_versions | xargs echo
+# ByteNess inherited all of 99designs' git tags but only publishes the
+# per-platform binaries this plugin installs (aws-vault-<os>-<cpu>) from
+# v7.5.0 onward; earlier tags were released only as tarballs or not at all.
+# Filter to >= 7.5.0: this guarantees an asset for the supported matrix of
+# macOS/Linux on amd64/arm64. The rarer freebsd and linux-ppc64le assets are
+# incomplete even above 7.5.0, so those platforms may still hit the download
+# error in bin/download for some listed versions.
+# (Uses a portable awk major.minor floor rather than `sort -V`; a non-numeric
+# tag like "experimental" coerces to 0 and is dropped.)
+filter_installable() {
+  awk -F. -v maj="$MIN_MAJOR" -v min="$MIN_MINOR" \
+    '($1 + 0 > maj) || ($1 + 0 == maj && $2 + 0 >= min)'
+}
+
+list_all_versions | filter_installable | sort_versions | xargs echo
