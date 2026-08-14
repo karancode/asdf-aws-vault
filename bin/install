@@ -13,28 +13,30 @@ get_arch() {
 
 get_cpu() {
     local machine_hardware_name
-    local cpu_type
     machine_hardware_name="$(uname -m)"
 
-    case "$machine_hardware_name" in
-        'x86_64') cpu_type="amd64";;
-        'powerpc64le' | 'ppc64le') cpu_type="ppc64le";;
-        'aarch64') cpu_type="arm64";;
-        'armv7l') cpu_type="arm";;
-        *) cpu_type="$machine_hardware_name";;
-    esac
+    # On Apple Silicon, a shell running under Rosetta 2 reports "x86_64".
+    # Detect the translation and correct to the native arm64 so we don't
+    # download an amd64 binary onto arm64 hardware.
+    if [ "$machine_hardware_name" = "x86_64" ] && [ "$(uname)" = "Darwin" ]; then
+        if [ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+            machine_hardware_name="arm64"
+        fi
+    fi
 
-    echo "$cpu_type"
+    case "$machine_hardware_name" in
+        'x86_64' | 'amd64') echo "amd64";;
+        'aarch64' | 'arm64') echo "arm64";;
+        'powerpc64le' | 'ppc64le') echo "ppc64le";;
+        *) echo "$machine_hardware_name";;
+    esac
 }
 
 get_download_url() {
     local version="$1"
     local platform="$(get_arch)"
-    if [ "$platform" = "darwin" ]; then
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu).dmg"
-    else
-        echo "https://github.com/99designs/aws-vault/releases/download/v${version}/aws-vault-${platform}-$(get_cpu)"
-    fi
+    local cpu="$(get_cpu)"
+    echo "https://github.com/ByteNess/aws-vault/releases/download/v${version}/aws-vault-${platform}-${cpu}"
 }
 
 install_aws_vault() {
@@ -49,19 +51,12 @@ install_aws_vault() {
     local bin_path="${bin_install_path}/aws-vault"
     echo "Downloading aws-vault from ${download_url}"
     if curl -sfL "$download_url" -o "$bin_path"; then
-        if [[ "$download_url" = *"dmg" ]]; then
-            # mount
-            hdiutil attach -nobrowse "$bin_path" -quiet
-
-            # replace dmg with binary
-            rm -rf  "$bin_path"
-            cp /Volumes/aws-vault/aws-vault "$bin_path"
-
-            # unmount
-            hdiutil detach /Volumes/aws-vault -quiet
-        fi
-        chmod +x $bin_path
+        chmod +x "$bin_path"
     else
+        rm -f "$bin_path"
+        >&2 echo "Error: could not download aws-vault v${version} for $(get_arch)-$(get_cpu)."
+        >&2 echo "This plugin supports ByteNess binaries from v7.5.0 onward; this version may be unavailable for your platform."
+        >&2 echo "URL: ${download_url}"
         exit 1
     fi
 }

@@ -8,10 +8,23 @@ function sort_versions() {
 }
 
 list_all_versions() {
-  git ls-remote --tags --refs https://github.com/99designs/aws-vault.git |
+  git ls-remote --tags --refs https://github.com/ByteNess/aws-vault.git |
     grep -o 'refs/tags/.*' |
     cut -d/ -f3- |
     sed 's/^v//'
 }
 
-list_all_versions | sort_versions | xargs echo
+# ByteNess inherited all of 99designs' git tags but only publishes the
+# per-platform binaries this plugin installs (aws-vault-<os>-<cpu>) from
+# v7.5.0 onward; earlier tags were released only as tarballs or not at all.
+# Filter to >= 7.5.0: this guarantees an asset for the supported matrix of
+# macOS/Linux on amd64/arm64. The rarer freebsd and linux-ppc64le assets are
+# incomplete even above 7.5.0, so those platforms may still hit the download
+# error in bin/install for some listed versions.
+# (Uses a portable awk major.minor floor rather than `sort -V`; a non-numeric
+# tag like "experimental" coerces to 0 and is dropped.)
+filter_installable() {
+  awk -F. '($1 + 0 > 7) || ($1 + 0 == 7 && $2 + 0 >= 5)'
+}
+
+list_all_versions | filter_installable | sort_versions | xargs echo
